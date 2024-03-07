@@ -19,7 +19,7 @@ pipeline {
                     DOCKER_REGISTRY="registry.hub.docker.com"
                     DOCKER_NAME="datngxtiens"
 
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'datngxtiens-dockerhub') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
