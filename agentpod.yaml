@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: maven-docker-pod
+spec:
+  containers:
+    - name: maven
+      image: maven:3.9.6-amazoncorretto-17
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - name: m2
+          mountPath: /root/.m2
+    - name: docker
+      image: docker:latest
+      command:
+        - cat
+      tty: true
+      privileged: true
+      volumeMounts:
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+  volumes:
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+    - name: m2
+      hostPath:
+        path: /root/.m2
