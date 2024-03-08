@@ -3,13 +3,11 @@ pipeline {
     stages {
         stage('Build docker images') {
             steps {
+                sh 'mvn -B -DskipTests clean package'
+
                 script {
-                    mvn -B -DskipTests clean package
                     DOCKER_IMAGE="gitops-demo"
                     app = docker.build("datngxtiens/${DOCKER_IMAGE}")
-                    // app.inside {
-                    //     sh 'echo $(curl localhost:8080)'
-                    // }
                 }
             }
         }
