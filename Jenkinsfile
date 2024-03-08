@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'jenkins-agent-1'
+    }
     stages {
         stage('Build docker images') {
             steps {
@@ -32,7 +34,7 @@ pipeline {
         stage('Trigger ManifestUpdate') {
             steps {
                 echo "Update manifestjob"
-                build job: 'update-manifest-github', //name job 2
+                build job: 'update-manifest-github',
                     parameters: [
                         string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)
                     ]
