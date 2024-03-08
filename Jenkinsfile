@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        node {
-            label 'jenkins-agent-1' // Label of the node you want to run the job on
-        }
+        label 'jenkins-agent-1'
     }
     stages {
         stage('Build docker images') {
