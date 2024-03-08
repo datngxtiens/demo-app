@@ -1,45 +1,44 @@
 pipeline {
-    agent {
-        label 'jenkins-agent-1'
-    }
-    stages {
-        stage('Build docker images') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
+    agent any
+    node('jenkins-agent-1') {
+        stages {
+                stage('Build docker images') {
+                    steps {
+                        sh 'mvn -B -DskipTests clean package'
 
-                script {
-                    DOCKER_IMAGE="gitops-demo"
-                    app = docker.build("datngxtiens/${DOCKER_IMAGE}")
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    DOCKER_REGISTRY="registry.hub.docker.com"
-                    DOCKER_NAME="datngxtiens"
-
-                    docker.withRegistry('https://registry.hub.docker.com', 'datngxtiens-dockerhub') {
-                        app.push("${env.BUILD_NUMBER}")
-                        app.push("latest")
+                        script {
+                            DOCKER_IMAGE="gitops-demo"
+                            app = docker.build("datngxtiens/${DOCKER_IMAGE}")
+                        }
                     }
+                }
 
-                    sh "docker image rm ${DOCKER_NAME}/${DOCKER_IMAGE}:latest"
-                    sh "docker image rm ${DOCKER_REGISTRY}/${DOCKER_NAME}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                stage('Push Docker Image') {
+                    steps {
+                        script {
+                            DOCKER_REGISTRY="registry.hub.docker.com"
+                            DOCKER_NAME="datngxtiens"
+
+                            docker.withRegistry('https://registry.hub.docker.com', 'datngxtiens-dockerhub') {
+                                app.push("${env.BUILD_NUMBER}")
+                                app.push("latest")
+                            }
+
+                            sh "docker image rm ${DOCKER_NAME}/${DOCKER_IMAGE}:latest"
+                            sh "docker image rm ${DOCKER_REGISTRY}/${DOCKER_NAME}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        }
+                    }
+                }
+
+                stage('Trigger ManifestUpdate') {
+                    steps {
+                        echo "Update manifestjob"
+                        build job: 'update-manifest-github',
+                            parameters: [
+                                string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)
+                            ]
+                    }
                 }
             }
-        }
-
-        stage('Trigger ManifestUpdate') {
-            steps {
-                echo "Update manifestjob"
-                build job: 'update-manifest-github',
-                    parameters: [
-                        string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)
-                    ]
-            }
-        }
-
     }
 }
