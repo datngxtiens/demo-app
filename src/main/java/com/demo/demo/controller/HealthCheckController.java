@@ -10,7 +10,7 @@ public class HealthCheckController {
     @GetMapping("/health/ping")
     public ResponseEntity<HealthyResponse> checkHealth() {
         HealthyResponse response = HealthyResponse.builder().code("000")
-                .message("Successful").detail("Welcome to ArgoCD Lab.").build();
+                .message("Successful").detail("Welcome to ArgoCD Lab with Jenkins.").build();
         return ResponseEntity.ok(response);
     }
 }
